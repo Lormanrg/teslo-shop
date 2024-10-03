@@ -27,9 +27,9 @@ export class CreateProductDto {
   @IsArray()
   sizes: string[];
 
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  slug?: number;
+  slug?: string;
 
   @IsInt()
   @IsPositive()
