@@ -24,7 +24,6 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
   ) {}
-
   async create(createProductDto: CreateProductDto) {
     try {
       const product = this.productRepository.create(createProductDto);
@@ -54,9 +53,10 @@ export class ProductsService {
     } else {
       const queryBuilder = this.productRepository.createQueryBuilder();
       product = await queryBuilder
-        .where(' UPPER(title) = :title or slug = :slug', {
+        .where(' UPPER(title) = :title or slug = :slug or tags= :tags', {
           title: term.toUpperCase(),
-          slug: term.toLocaleLowerCase(),
+          slug: term.toLowerCase(),
+          tags: term.toLowerCase(),
         })
         .getOne();
     }
@@ -79,7 +79,7 @@ export class ProductsService {
       await this.productRepository.save(product);
       return product;
     } catch (error) {
-      this.handleDBExceptions(error);
+      this.handleDBExceptions;
     }
   }
 
