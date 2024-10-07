@@ -13,7 +13,7 @@ import { Product, ProductImage } from './entities';
 
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { validate as isUUID } from 'uuid';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class ProductsService {
@@ -25,6 +25,8 @@ export class ProductsService {
 
     @InjectRepository(ProductImage)
     private readonly productImageRepository: Repository<ProductImage>,
+
+    private readonly dataSource: DataSource,
   ) {}
   async create(createProductDto: CreateProductDto) {
     try {
@@ -94,20 +96,39 @@ export class ProductsService {
 
     return {
       ...rest,
-      image: images.map((img) => img.url),
+      images: images.map((img) => img.url),
     };
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
+    const { images, ...toUpload } = updateProductDto;
     const product = await this.productRepository.preload({
-      id: id,
-      ...updateProductDto,
-      images: [],
+      id,
+      ...toUpload,
     });
+
+    //Create Query Runner
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      await this.productRepository.save(product);
-      return product;
+      if (images) {
+        await queryRunner.manager.delete(ProductImage, { product: { id } });
+
+        product.images = images.map((image) =>
+          this.productImageRepository.create({ url: image }),
+        );
+      }
+
+      await queryRunner.manager.save(product);
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+      // await this.productRepository.save(product);
+      return this.findOnePlain(id);
     } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
       this.handleDBExceptions;
     }
   }
