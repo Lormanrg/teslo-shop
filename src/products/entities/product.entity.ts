@@ -6,7 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { UUID } from 'typeorm/driver/mongodb/bson.typings';
+
 import { ProductImage } from './product-image.entity';
 
 @Entity()
@@ -58,8 +58,9 @@ export class Product {
 
   @OneToMany(() => ProductImage, (productImage) => productImage.product, {
     cascade: true,
+    eager: true,
   })
-  images: ProductImage;
+  images?: ProductImage[];
 
   @BeforeInsert()
   checkSlugCreate() {
