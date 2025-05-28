@@ -1,8 +1,7 @@
-import { File } from 'buffer';
-
 export const fileFilter = (
   req: Express.Request,
   file: Express.Multer.File,
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   callback: Function,
 ) => {
   //   console.log({ file });

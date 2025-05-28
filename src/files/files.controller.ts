@@ -7,7 +7,6 @@ import {
   UseInterceptors,
   BadRequestException,
   Res,
-  Inject,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';

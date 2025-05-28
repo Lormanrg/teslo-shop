@@ -129,7 +129,7 @@ export class ProductsService {
     } catch (error) {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
-      this.handleDBExceptions;
+      this.handleDBExceptions(error);
     }
   }
 
