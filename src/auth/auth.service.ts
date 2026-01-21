@@ -4,13 +4,16 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt'
 import { CreateUserDto, LoginUserDto } from './dto';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './interfaces/jwt_payload-.interface';
 
 @Injectable()
 export class AuthService {
 
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    private readonly JwtService: JwtService
   ){
 
   }
@@ -27,7 +30,8 @@ try {
 
   return {
     message: 'Usuario creado correctamente',
-    user
+    ...user,
+    token: this.getJwtToken({email:user.email})
   }
 } catch (error) {
   this.handleDBError(error)
@@ -51,8 +55,14 @@ async login(loginUserDto: LoginUserDto){
 
     return {
       message: 'Login exitoso',
-      user
+      ...user,
+      token: this.getJwtToken({email:user.email})
     }
+}
+
+private getJwtToken(payload: JwtPayload){
+  const token= this.JwtService.sign(payload)
+  return token
 }
 
   private handleDBError(error: any): never{

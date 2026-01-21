@@ -14,6 +14,7 @@ import { fileFilter, fileNamer } from './helpers';
 import { diskStorage } from 'multer';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('files')
 export class FilesController {
@@ -23,6 +24,7 @@ export class FilesController {
     private readonly configService: ConfigService,
   ) {}
 
+  @ApiTags('Files')
   @Get('product/:imageName')
   fileProductImage(
     @Res() res: Response,

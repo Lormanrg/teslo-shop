@@ -8,17 +8,31 @@ import {
   Delete,
   ParseUUIDPipe,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Product } from './entities';
 
+@ApiTags('Products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
+  @ApiResponse({
+    status: 201,
+    description: 'Product created successfully',
+    type: Product,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+    type: BadRequestException,
+  })
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
@@ -29,6 +43,20 @@ export class ProductsController {
   }
 
   @Get(':term')
+  @ApiResponse({
+    status: 200,
+    description: 'Product found successfully',
+    type: Product,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+    type: BadRequestException,
+  })
   findOne(@Param('term') term: string) {
     return this.productsService.findOnePlain(term);
   }
