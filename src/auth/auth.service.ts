@@ -31,7 +31,7 @@ try {
   return {
     message: 'Usuario creado correctamente',
     ...user,
-    token: this.getJwtToken({email:user.email})
+    token: this.getJwtToken({email:user.email, id:user.id})
   }
 } catch (error) {
   this.handleDBError(error)
@@ -43,7 +43,7 @@ async login(loginUserDto: LoginUserDto){
 
   const user = await this.userRepository.findOne({
     where: {email},
-    select: { email: true, password: true}
+    select: { id: true, email: true, password: true}
 
   })
 
@@ -56,7 +56,7 @@ async login(loginUserDto: LoginUserDto){
     return {
       message: 'Login exitoso',
       ...user,
-      token: this.getJwtToken({email:user.email})
+      token: this.getJwtToken({email:user.email, id:user.id})
     }
 }
 

@@ -16,20 +16,22 @@ export class MessagesWsGateway {
      @WebSocketServer()
      server: Server
 
-  handleConnection(client: Socket) {
+ async handleConnection(client: Socket) {
     const token = client.handshake.headers.authentication as string
-   let payload: JwtPayload
+    let payload: JwtPayload
     try {
+      //console.log('token',token)
+    
       payload = this.jwtService.verify(token)
+      await this.messagesWsService.registerClient(client, payload?.id)
     } catch (error) {
+      console.log('Token no valido', error)
       client.disconnect()
       return
     }
 
-    console.log({payload})
+    //console.log({payload})
 
-    console.log('token',token)
-      this.messagesWsService.registerClient(client)
 
       this.server.emit('client_updated',
        this.messagesWsService.getConnectedClients()
@@ -62,7 +64,7 @@ export class MessagesWsGateway {
 
     //Send message to all clients
     this.server.emit('message_from_server',{
-      fullName: 'Soy Yo!',
+      fullName: this.messagesWsService.getUserFullName(client.id),
       message: message.message || 'no message'
     })
   }
